@@ -1,4 +1,4 @@
-package com.example.flixster.adapters;
+package com.example.flixster;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,8 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.flixster.MovieDetailsActivity;
-import com.example.flixster.R;
 import com.example.flixster.models.Movie;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +42,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
         Log.d("MovieAdapter", "OnCreateViewHolder");
         View movieView = LayoutInflater.from(context).inflate(R.layout.item_movie, parent, false);
+        CheckBox checkBox = movieView.findViewById(R.id.checkBox);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                context.getSharedPreferences("com.example.flixster.SAVED_STATE", Context.MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("cb_checkbox", isChecked)
+                        .apply();
+            }
+        });
         return new ViewHolder(movieView);
     }
 
@@ -50,7 +60,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
         Log.d("MovieAdapter", "OnBindViewHolder" + position);
         Movie movie = movies.get(position);
+
         holder.bind(movie);
+        boolean checkedState = context.getSharedPreferences("com.example.flixster.SAVED_STATE", Context.MODE_PRIVATE)
+                .getBoolean("cb_checkbox", false);
+
 
     }
 
@@ -66,12 +80,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
         TextView tvTitle;
         TextView tvOverview;
         ImageView ivPoster;
+        CheckBox checkBox;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitle2);
             tvOverview = itemView.findViewById(R.id.tvOverview);
             ivPoster = itemView.findViewById(R.id.ivPoster);
+            checkBox = itemView.findViewById(R.id.checkBox);
 
             itemView.setOnClickListener(this);
         }
@@ -97,6 +113,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
                     .transform(new RoundedCornersTransformation(radius, margin))
 
                     .into(ivPoster);
+
         }
 
         @Override
